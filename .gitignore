@@ -1,0 +1,15 @@
+.idea/*
+__pycache__/*
+include/__pycache__/*
+include/akima.c
+
+settings.xml
+dependency/__pycache__/
+trash/test.mhd
+trash/test.raw
+Math/.cache/
+Math/__pycache__
+ProjectionMatrix/__pycache__
+skripts/test.mhd
+skripts/test.raw
+

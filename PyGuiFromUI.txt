@@ -1,0 +1,11 @@
+There exists a bat call pyuic5.bat. This is somewhere within the python installation. It should be under PythonXX\Lib\side-packages\PyQt5\pyuic5
+However in anaconda it is under Library\bin. 
+
+pyuic5 -x some.ui -o some.py
+
+
+Troubleshoot:
+
+It might happen that some errors appear due to stuff like C:\\Program Files...
+The system will interprete this as two commands due to the space between Program and Files, so it might be necessary to
+place the path within the pyuic5.bat into exclamation marks --> "". 

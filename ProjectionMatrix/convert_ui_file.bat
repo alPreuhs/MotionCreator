@@ -1,0 +1,1 @@
+pyuic5 -x ProjMatCreator.ui -o ProjMatCreator.py

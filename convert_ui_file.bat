@@ -1,0 +1,1 @@
+pyuic5 -x motionCreator_gui.ui -o motionCreator_gui.py
