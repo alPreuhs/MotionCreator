@@ -38,7 +38,9 @@ class vtk_window_pm():
 
         # Set the InteractorStyle to self written Interactor style, where we can
         # access the signals (i think .AddObserver("...event..., func") would do the same...)
-        self.iren.SetInteractorStyle(InteractorStyle(parent=self.iren))
+
+        self.interactorStyle = InteractorStyle(parent=self.iren)
+        self.iren.SetInteractorStyle(self.interactorStyle)
         qtFrame.setLayout(self.vl)
 
     def add_actors(self, actor, color=[0, 0, 0]):
@@ -134,8 +136,7 @@ class vtk_window_pm():
         actor.SetMapper(mapper)
         actor.GetProperty().LightingOff()
         ##alternatively to using the transform above one could use: actor.RotateZ etc and Scale
-
-
         actor.GetProperty().SetColor(color[0], color[1], color[2])
-
         ren.AddActor(actor)
+
+
