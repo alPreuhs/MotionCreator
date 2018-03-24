@@ -32,6 +32,7 @@ class MotionCreator_logic(Ui_MotionCreator):
         ##Setup the VTK window
         self.vtk_handle = vtkWindow()
         self.vtk_handle.vtkWidget(self.view3D)
+#        self.vtk_handle.init_interactor()
         ##define Variables
         self.init_member_variables()
         ##Connect Slider logic

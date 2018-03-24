@@ -62,7 +62,8 @@ class vtkWindow():
         self.ren.AddActor(self.actor)
         self.vtkWidget.Initialize()
         self.iren.Initialize()
-        self.iren.SetInteractorStyle(InteractorStyle(parent=self.iren))
+        self.interactorStyle = InteractorStyle(parent=self.iren)
+        self.iren.SetInteractorStyle(self.interactorStyle)
 
         qtFrame.setLayout(self.vl)
 
@@ -83,16 +84,16 @@ class vtkWindow():
         matrix = help_functions.GetVTKMatrix(rotMat)
         transform.Concatenate(matrix)
 
-        transformFilter = vtk.vtkTransformPolyDataFilter()
-        transformFilter.SetTransform(transform)
-        transformFilter.SetInputConnection(self.arrowSource.GetOutputPort())
-        transformFilter.Update()
+        #transformFilter = vtk.vtkTransformPolyDataFilter()
+        #transformFilter.SetTransform(transform)
+        #transformFilter.SetInputConnection(self.arrowSource.GetOutputPort())
+        #transformFilter.Update()
 
-        coneMapper = vtk.vtkPolyDataMapper()
-        coneMapper.SetInputConnection(transformFilter.GetOutputPort())
+        #coneMapper = vtk.vtkPolyDataMapper()
+        #coneMapper.SetInputConnection(transformFilter.GetOutputPort())
 
-        actor = vtk.vtkActor()
-        actor.SetMapper(coneMapper)
+        #actor = vtk.vtkActor()
+        #actor.SetMapper(coneMapper)
 
         self.actor.SetUserTransform(transform)
         self.ren.ResetCameraClippingRange()
@@ -103,3 +104,7 @@ class vtkWindow():
         # renWin.Render()
         # iren.Start()
         # print("try to set rotation")
+
+#  def init_interactor(self):
+#      self.interactorStyle.onCustomInitialization()
+#      a = 10

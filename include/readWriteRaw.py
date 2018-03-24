@@ -22,7 +22,6 @@ def read(filename):
     for i in range(0, proj_dim[2]):
         p_list.append(np.array(proj_buff[i * proj_len: (i + 1) * proj_len]).reshape(proj_dim[1], proj_dim[0], order='F'))
         # p_list.append(np.array(proj_buff[i * proj_len: (i + 1) * proj_len]).reshape(3, 4))
-
     return p_list
 
 """
