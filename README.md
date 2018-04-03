@@ -7,7 +7,7 @@ Thus, for using the prototpye:
   1) the respective anaconda installation must be available 
   2) the vtk whl file must be installed
 
-Thereafter the prototype can be used, eg by using executing the "start_prototype.bat".
+Thereafter (using Windows) the prototype can be used, eg by executing the "start_prototype.bat".
 
 Datatypes:
 The motion creator supports the reading and writing of raw-projection matrices, i.e. a file consisting of a raw 6 byte header (type: int16)
