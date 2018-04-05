@@ -4,7 +4,8 @@ import vtk
 ##Class that can be used as InteractionStyle, where events can be catched
 class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
-    def __init__(self, parent=None):
+    def __init__(self, motion_creator_instance, parent=None):
+        self.mocrin = motion_creator_instance
         self.initialModelViewMatrix = vtk.vtkMatrix4x4()
 
         if (parent is not None):
@@ -47,27 +48,28 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     def MiddleButtonReleaseEvent(self, event, m):
         print("Middle Button was Pressed")
         self.OnMiddleButtonUp()
-        self.GetCameraParameters
+        self.GetCameraParameters()
         return
 
     def LeftButtonReleaseEvent(self, event, m):
         print("Left Button was Pressed")
         self.OnLeftButtonUp()
-        self.GetCameraParameters
+        self.GetCameraParameters()
         return
 
     # in order to get shiftings
     start_position = (0, 0, 0)
     counter = 0
 
-    @property
+    #@property
     def GetCameraParameters(self):
+
         renderers = self.parent.GetRenderWindow().GetRenderers()
         cam = renderers.GetFirstRenderer().GetActiveCamera()
         roll = cam.GetRoll()
         model = cam.GetModelViewTransformObject()
         modelmatrix = model.GetMatrix()
-
+        self.mocrin.test()
         if (self.counter == 0):
             self.start_position = cam.GetPosition()
             self.counter += 1

@@ -8,7 +8,7 @@ from include import help_functions
 
 ## class that needs a qtFrame and places a vtk renderwindow inside
 class vtkWindow():
-    def vtkWidget(self, qtFrame):
+    def vtkWidget(self, qtFrame, motion_creator_instance):
         # the center computation might seem to be a bit complicated however what we do is:
         # the center_of_rotation gives the center of rotation in pixel coordinates
         self.vl = QtWidgets.QGridLayout()
@@ -62,7 +62,7 @@ class vtkWindow():
         self.ren.AddActor(self.actor)
         self.vtkWidget.Initialize()
         self.iren.Initialize()
-        self.interactorStyle = InteractorStyle(parent=self.iren)
+        self.interactorStyle = InteractorStyle(motion_creator_instance,parent=self.iren)
         self.iren.SetInteractorStyle(self.interactorStyle)
 
         qtFrame.setLayout(self.vl)
