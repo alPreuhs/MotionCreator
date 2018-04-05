@@ -39,12 +39,10 @@ class vtk_window_pm():
         # Set the InteractorStyle to self written Interactor style, where we can
         # access the signals (i think .AddObserver("...event..., func") would do the same...)
 
-        self.interactorStyle = InteractorStyle( self, parent=self.iren)
+        self.interactorStyle = InteractorStyle(parent=self.iren)
         self.iren.SetInteractorStyle(self.interactorStyle)
         qtFrame.setLayout(self.vl)
 
-    def test(self):
-        print("I do nothing")
 
     def add_actors(self, actor, color=[0, 0, 0]):
         actor.GetProperty().SetColor(color[0], color[1], color[2])
