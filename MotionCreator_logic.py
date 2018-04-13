@@ -154,6 +154,7 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.set_motion_label_and_btn()
         self.motion_parameters = np.zeros((self.num_proj, 6), dtype=np.float32)
         self.p_mat = []
+        self.motion_from_vtk = False
 
     def set_text_selected_timepoint_label(self):
         self.lb_Time_ScrollBar.setText("Selected Timepoint: {}/{}".format(self.current_proj + 1, self.num_proj))
@@ -166,32 +167,18 @@ class MotionCreator_logic(Ui_MotionCreator):
         r_cor = motion_parameters[4]
         r_sag = motion_parameters[5]
 
-        # if motion_parameters[0] is not 0:
-        #     self.gps_axial.setPos(-  self.offset[1, 0], -self.offset[1, 1] + motion_parameters[0])
-        #     self.motion_parameters[self.current_proj, 0] = motion_parameters[0] * 2  ##currently leftwards rightwards
-        #     # self.on_slider_changed()
-        #
-        # if motion_parameters[1] is not 0:
-        #     self.gps_coronal.setPos(-self.offset[0, 0] + motion_parameters[1], -self.offset[0, 1])
-        #     self.motion_parameters[self.current_proj, 1] = motion_parameters[1]  ##currentlich upwards downwards
-        #     # self.on_slider_changed()
-        #
-        # if motion_parameters[2] is not 0:
-        #     self.gps_sagittal.setPos(-  self.offset[2, 0], -self.offset[2, 1] - motion_parameters[2])
-        #     self.motion_parameters[self.current_proj, 2] = motion_parameters[2] * 1.5
-        #     # self.on_slider_changed()
+        # print(motion_parameters)
 
-        if r_ax is not 0:
-            self.gps_axial.setRotation(-r_ax)
-            self.motion_parameters[self.current_proj, 3] = r_ax
+        self.motion_from_vtk = True
 
-        if r_cor is not 0:
-            self.gps_coronal.setRotation(-r_cor)
-            self.motion_parameters[self.current_proj, 4] = r_cor
+        self.on_slider_changed_t_ax(t_ax / 2)
+        self.on_slider_changed_t_cor(t_cor)
+        self.on_slider_changed_t_sag(t_sag / 1.5)
+        self.on_slider_changed_R_ax(r_ax)
+        self.on_slider_changed_R_cor(r_cor)
+        self.on_slider_changed_R_sag(r_sag)
 
-        if r_sag is not 0:
-            self.gps_sagittal.setRotation(-r_sag)
-            self.motion_parameters[self.current_proj, 5] = r_sag
+        self.motion_from_vtk = False
 
     def connect_slider(self):
         ##Connect translation Slider
@@ -209,38 +196,69 @@ class MotionCreator_logic(Ui_MotionCreator):
         if i is not 0:
             self.gps_axial.setPos(-  self.offset[1, 0], -self.offset[1, 1] + i)
             self.motion_parameters[self.current_proj, 0] = i * 2  ##currently leftwards rightwards
-            self.on_slider_changed()
+            if self.motion_from_vtk == False:
+                self.on_slider_changed()
+            else:
+                if self.TSliderAxial.value() == i:
+                    return
+                self.TSliderAxial.setValue(i)
 
     def on_slider_changed_t_cor(self, i):
         if i is not 0:
             self.gps_coronal.setPos(-self.offset[0, 0] + i, -self.offset[0, 1])
-            self.motion_parameters[self.current_proj, 1] = i  ##currentlich upwards downwards
-            self.on_slider_changed()
+            self.motion_parameters[self.current_proj, 1] = i  ##currently upwards
+            if self.motion_from_vtk == False:
+                self.on_slider_changed()
+            else:
+                if (self.TSliderCoronal.value() == i):
+                    return
+                self.TSliderCoronal.setValue(i)
 
     def on_slider_changed_t_sag(self, i):
         if i is not 0:
             self.gps_sagittal.setPos(-  self.offset[2, 0], -self.offset[2, 1] - i)
             self.motion_parameters[self.current_proj, 2] = i * 1.5
-            self.on_slider_changed()
+            if self.motion_from_vtk == False:
+                self.on_slider_changed()
+            else:
+                if (self.TSliderSagittal.value() == i):
+                    return
+                self.TSliderSagittal.setValue(i)
 
     def on_slider_changed_R_ax(self, i):
         if i is not 0:
             self.gps_axial.setRotation(-i)
             self.motion_parameters[self.current_proj, 3] = i
-            self.on_slider_changed()
+            if self.motion_from_vtk == False:
+                self.on_slider_changed()
+            else:
+                if (self.RSliderAxial.value() == i):
+                    return
+                self.RSliderAxial.setValue(i)
 
     def on_slider_changed_R_cor(self, i):
+        # self.previous_motion_parameters = self.motion_parameters
+        # print(self.previous_motion_parameters[self.current_proj])
         if i is not 0:
             self.gps_coronal.setRotation(-i)
             self.motion_parameters[self.current_proj, 4] = i
-            self.on_slider_changed()
+            if self.motion_from_vtk == False:
+                self.on_slider_changed()
+            else:
+                if self.RSliderCoronal.value() == i:
+                    return
+                self.RSliderCoronal.setValue(i)
 
     def on_slider_changed_R_sag(self, i):
-        i = i
         if i is not 0:
             self.gps_sagittal.setRotation(-i)
             self.motion_parameters[self.current_proj, 5] = i
-            self.on_slider_changed()
+            if self.motion_from_vtk == False:
+                self.on_slider_changed()
+            else:
+                if self.RSliderSagittal.value() == i:
+                    return
+                self.RSliderSagittal.setValue(i)
 
     def on_slider_changed(self):
         self.register_projection()
