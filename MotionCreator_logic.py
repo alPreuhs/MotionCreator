@@ -9,7 +9,7 @@ import os
 from ProjectionMatrix.ProjMatCreator_logic import ProjMatCreator_logic
 from include import akima
 from include import help_functions
-from  include import readWriteRaw
+from include import readWriteRaw
 from motionCreator_gui import Ui_MotionCreator
 from vtkWindow import vtkWindow
 
@@ -17,11 +17,13 @@ from vtkWindow import vtkWindow
 class MotionCreator_logic(Ui_MotionCreator):
     def __init__(self, MainWindow):
         self.MainWindow = MainWindow
-        #tracback is disabled by default,
-        #the following reactivats it
+
+        # tracback is disabled by default,
+        # the following reactivats it
         def excepthook(type_, value, traceback_):
             traceback.print_exception(type_, value, traceback_)
             QtCore.qFatal('')
+
         sys.excepthook = excepthook
         self.read_xml()
         ##Setup UI, which is created via qt designer and pyuic5
@@ -32,7 +34,7 @@ class MotionCreator_logic(Ui_MotionCreator):
         ##Setup the VTK window
         self.vtk_handle = vtkWindow()
         self.vtk_handle.vtkWidget(self.view3D, self)
-#        self.vtk_handle.init_interactor()
+        #        self.vtk_handle.init_interactor()
         ##define Variables
         self.init_member_variables()
         ##Connect Slider logic
@@ -50,11 +52,6 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.resizeEvent()
         ###load default biplane projection matrix
         self.proj_mat_creator.bt_confirm_proj_mat.click()
-
-
-    def test(self):
-        print('Hello')
-
 
     def resizeEvent(self):
         self.ViewAxial.fitInView(self.gps_axial_placeholder.boundingRect(), QtCore.Qt.KeepAspectRatio)
@@ -160,6 +157,41 @@ class MotionCreator_logic(Ui_MotionCreator):
 
     def set_text_selected_timepoint_label(self):
         self.lb_Time_ScrollBar.setText("Selected Timepoint: {}/{}".format(self.current_proj + 1, self.num_proj))
+
+    def vtk_motion_to_graphics_view(self, motion_parameters):
+        t_ax = motion_parameters[0]
+        t_cor = motion_parameters[1]
+        t_sag = motion_parameters[2]
+        r_ax = motion_parameters[3]
+        r_cor = motion_parameters[4]
+        r_sag = motion_parameters[5]
+
+        # if motion_parameters[0] is not 0:
+        #     self.gps_axial.setPos(-  self.offset[1, 0], -self.offset[1, 1] + motion_parameters[0])
+        #     self.motion_parameters[self.current_proj, 0] = motion_parameters[0] * 2  ##currently leftwards rightwards
+        #     # self.on_slider_changed()
+        #
+        # if motion_parameters[1] is not 0:
+        #     self.gps_coronal.setPos(-self.offset[0, 0] + motion_parameters[1], -self.offset[0, 1])
+        #     self.motion_parameters[self.current_proj, 1] = motion_parameters[1]  ##currentlich upwards downwards
+        #     # self.on_slider_changed()
+        #
+        # if motion_parameters[2] is not 0:
+        #     self.gps_sagittal.setPos(-  self.offset[2, 0], -self.offset[2, 1] - motion_parameters[2])
+        #     self.motion_parameters[self.current_proj, 2] = motion_parameters[2] * 1.5
+        #     # self.on_slider_changed()
+
+        if r_ax is not 0:
+            self.gps_axial.setRotation(-r_ax)
+            self.motion_parameters[self.current_proj, 3] = r_ax
+
+        if r_cor is not 0:
+            self.gps_coronal.setRotation(-r_cor)
+            self.motion_parameters[self.current_proj, 4] = r_cor
+
+        if r_sag is not 0:
+            self.gps_sagittal.setRotation(-r_sag)
+            self.motion_parameters[self.current_proj, 5] = r_sag
 
     def connect_slider(self):
         ##Connect translation Slider
@@ -412,6 +444,7 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.RSliderSagittal.blockSignals(False)
             self.RSliderCoronal.blockSignals(False)
             self.RSliderAxial.blockSignals(False)
+
         set_sliders(array_input[0], array_input[1], array_input[2], array_input[3],
                     array_input[4], array_input[5])
 
@@ -508,12 +541,12 @@ class MotionCreator_logic(Ui_MotionCreator):
 
     def on_load_motion_file(self):
         motion_fn = QtWidgets.QFileDialog.getOpenFileName(self.centralwidget, 'Load Motion File',
-                                                                self.p_mat_dir
-                                                                , "Motion files (*.motion)"
-                                                                )[
+                                                          self.p_mat_dir
+                                                          , "Motion files (*.motion)"
+                                                          )[
             0]  # getOpenFileName returns tupel with second entry beeing the filter
         motion_list = readWriteRaw.read(motion_fn)
-        if(self.num_proj != len(motion_list)):
+        if (self.num_proj != len(motion_list)):
             print('Dimension of loaded motion_file and loaded projections do not fit')
             print('Length of loaded Projections: {}'.format(self.num_proj))
             print('Length of loaded Motion: {}'.format(len(motion_list)))
@@ -525,7 +558,6 @@ class MotionCreator_logic(Ui_MotionCreator):
                 self.register_projection_n(i)
             self.sb_time_cursor.setValue(1)
             self.sb_time_cursor.setValue(0)
-
 
     def on_bt_load_pm(self):
         self.p_mat_file = QtWidgets.QFileDialog.getOpenFileName(self.centralwidget, 'Load Projection Matrices',
@@ -541,6 +573,7 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.num_proj = len(self.p_mat)
         ##init projection motion
         self.on_num_proj_changed()
+
 
 class Window(QtWidgets.QMainWindow):
     resized = QtCore.pyqtSignal()
@@ -558,13 +591,13 @@ class Window(QtWidgets.QMainWindow):
         self.resized.emit()
         return super(Window, self).resizeEvent(event)
 
-if __name__ == '__main__':
 
-    if os.name == "nt":  # if windows
-        #    import PyQt5
-        pyqt_plugins = os.path.join(os.path.dirname(PyQt5.__file__),
-                                    "..", "..", "..", "Library", "plugins")
-        QtWidgets.QApplication.addLibraryPath(pyqt_plugins)
+if __name__ == '__main__':
+    # if os.name == "nt":  # if windows
+    #    import PyQt5
+    #   pyqt_plugins = os.path.join(os.path.dirname(PyQt5.__file__),
+    # "..", "..", "..", "Library", "plugins")
+    #  QtWidgets.QApplication.addLibraryPath(pyqt_plugins)
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = Window()
     prog = MotionCreator_logic(MainWindow)

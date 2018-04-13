@@ -1,4 +1,5 @@
 import vtk
+import numpy as np
 
 
 ##Class that can be used as InteractionStyle, where events can be catched
@@ -61,7 +62,7 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     start_position = (0, 0, 0)
     counter = 0
 
-    #@property
+    # @property
     def GetCameraParameters(self):
 
         renderers = self.parent.GetRenderWindow().GetRenderers()
@@ -69,23 +70,28 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         roll = cam.GetRoll()
         model = cam.GetModelViewTransformObject()
         modelmatrix = model.GetMatrix()
-        self.mocrin.test()
+
         if (self.counter == 0):
             self.start_position = cam.GetPosition()
             self.counter += 1
 
         orientation = cam.GetOrientation()
-        rot_sag = orientation[0]
-        rot_ax = orientation[1]
-        rot_cor = orientation[2]
-        print("orientation: rot_sag:" + str(rot_sag) + "°  rot_ax:" + str(rot_ax) + "°    rot_cor:" + str(rot_cor) + "°")
+        r_sag = orientation[0]
+        r_ax = orientation[1]
+        r_cor = orientation[2]
+        print(
+            "orientation: rot_sag:" + str(r_sag) + "°  rot_ax:" + str(r_ax) + "°    rot_cor:" + str(r_cor) + "°")
 
         current_position = cam.GetPosition()
         t_cor = current_position[0] - self.start_position[0]
         t_sag = current_position[1] - self.start_position[1]
         t_ax = current_position[2] - self.start_position[2]
-        print(
-            "shifting of position: t_cor:" + str(t_cor) + "; t_sag:" + str(t_sag) + "; t_ax:" + str(t_ax) + "\n")
+
+        motion_parameters = np.array([t_ax, t_cor, t_sag, r_ax, r_cor, r_sag])
+        self.mocrin.vtk_motion_to_graphics_view(motion_parameters)
+
+        #print(
+        #   "shifting of position: t_cor:" + str(t_cor) + "; t_sag:" + str(t_sag) + "; t_ax:" + str(t_ax) + "\n")
 
         # print()
         # for i in range(4):
