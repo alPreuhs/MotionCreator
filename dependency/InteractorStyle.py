@@ -14,7 +14,11 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         else:
             self.parent = vtk.vtkRenderWindowInteractor()
 
-        self.start_position = self.parent.GetRenderWindow().GetRenderers().GetFirstRenderer().GetActiveCamera().GetPosition()
+        # self.start_position = self.parent.GetRenderWindow().GetRenderers().GetFirstRenderer().GetActiveCamera().GetPosition()
+        self.reference_position = self.parent.GetRenderWindow().GetRenderers().GetFirstRenderer().GetActiveCamera().GetPosition()
+        # self.start_view_up = self.parent.GetRenderWindow().GetRenderers().GetFirstRenderer().GetActiveCamera().GetViewUp()
+        # self.start_focal_point = self.parent.GetRenderWindow().GetRenderers().GetFirstRenderer().GetActiveCamera().GetViewUp()
+
         self.movement = False
         self.rotation = False
         # self.AddObserver("KeyPressEvent", self.keyPress)
@@ -65,8 +69,33 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         self.rotation = False
         return
 
-    def GetCameraParameters(self):
+    # def reset_camera(self):
+    #     renderers = self.parent.GetRenderWindow().GetRenderers()
+    #     cam = renderers.GetFirstRenderer().GetActiveCamera()
+    #     cam.SetFocalPoint(self.start_focal_point)
+    #     cam.SetPosition(self.start_position)
+    #     cam.SetViewUp(self.start_view_up)
 
+    def apply_rotation(self, cam):
+        orientation = cam.GetOrientation()
+        r_sag = orientation[0]
+        r_ax = orientation[1]
+        r_cor = orientation[2]
+        self.motion_parameters = np.array([0, 0, 0, r_ax, r_cor, r_sag])
+        self.mocrin.vtk_motion_to_graphics_view(self.motion_parameters)
+        # print("orientation: rot_sag:" + str(r_sag) + "°  rot_cor:" + str(r_cor) + "° rot_ax: " + str(r_ax) + "°")
+        # print("Current position: " + str(cam.GetPosition()))
+
+    def apply_shifting(self, current_position):
+        t_cor = -(current_position[0] - self.reference_position[0])
+        t_sag = -(current_position[1] - self.reference_position[1])
+        t_ax = -(current_position[2] - self.reference_position[2])
+        self.motion_parameters = np.array([t_ax, t_cor, t_sag, 0, 0, 0])
+        self.mocrin.vtk_motion_to_graphics_view(self.motion_parameters)
+        # print(
+        #    "shifting of position: t_cor:" + str(t_cor) + "; t_sag:" + str(t_sag) + "; t_ax:" + str(t_ax) + "\n")
+
+    def GetCameraParameters(self):
         renderers = self.parent.GetRenderWindow().GetRenderers()
         cam = renderers.GetFirstRenderer().GetActiveCamera()
         roll = cam.GetRoll()
@@ -74,25 +103,10 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         modelmatrix = model.GetMatrix()
 
         if (self.rotation == True):
-            orientation = cam.GetOrientation()
-            r_sag = orientation[0]
-            r_ax = orientation[1]
-            r_cor = orientation[2]
-            self.start_position = cam.GetPosition()
-            self.motion_parameters = np.array([0, 0, 0, r_ax, r_cor, r_sag])
-            self.mocrin.vtk_motion_to_graphics_view(self.motion_parameters)
-            print(
-                "orientation: rot_sag:" + str(r_sag) + "°  rot_cor:" + str(r_cor) + "° + rot_ax: " + str(r_ax) + "°")
-
+            self.apply_rotation(cam)
+        current_position = cam.GetPosition()
         if (self.movement == True):
-            current_position = cam.GetPosition()
-            t_cor = -(current_position[0] - self.start_position[0])
-            t_sag = -(current_position[1] - self.start_position[1])
-            t_ax = -(current_position[2] - self.start_position[2])
-            self.motion_parameters = np.array([t_ax, t_cor, t_sag, 0, 0, 0])
-            self.mocrin.vtk_motion_to_graphics_view(self.motion_parameters)
-            # print(
-            #    "shifting of position: t_cor:" + str(t_cor) + "; t_sag:" + str(t_sag) + "; t_ax:" + str(t_ax) + "\n")
+            self.apply_shifting(current_position)
 
         # print()
         # for i in range(4):

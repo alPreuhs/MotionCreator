@@ -153,31 +153,35 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.lb_proj_is_used.setAutoFillBackground(True)  # To enable background colouring
         self.set_motion_label_and_btn()
         self.motion_parameters = np.zeros((self.num_proj, 6), dtype=np.float32)
+        self.cam_motion_parameters = np.zeros((self.num_proj, 6), dtype=np.float32)
+        self.slider_motion_parameters = np.zeros((self.num_proj, 6), dtype=np.float32)
+        # self.cam_reset_motion_parameters = np.zeros((self.num_proj, 6), dtype=np.float32)
         self.p_mat = []
         self.motion_from_vtk = False
 
     def set_text_selected_timepoint_label(self):
         self.lb_Time_ScrollBar.setText("Selected Timepoint: {}/{}".format(self.current_proj + 1, self.num_proj))
 
-    def vtk_motion_to_graphics_view(self, motion_parameters):
-        t_ax = motion_parameters[0]
-        t_cor = motion_parameters[1]
-        t_sag = motion_parameters[2]
-        r_ax = motion_parameters[3]
-        r_cor = motion_parameters[4]
-        r_sag = motion_parameters[5]
-
-        # print(motion_parameters)
+    def vtk_motion_to_graphics_view(self, cam_motion_parameters):
+        t_ax = cam_motion_parameters[0]
+        t_cor = cam_motion_parameters[1]
+        t_sag = cam_motion_parameters[2]
+        r_ax = cam_motion_parameters[3]
+        r_cor = cam_motion_parameters[4]
+        r_sag = cam_motion_parameters[5]
 
         self.motion_from_vtk = True
+        if t_ax == 0:
+            self.cam_motion_parameters[self.current_proj, 3:6] = cam_motion_parameters[3:6]
+            self.on_slider_changed_R_ax(r_ax)
+            self.on_slider_changed_R_cor(r_cor)
+            self.on_slider_changed_R_sag(r_sag)
 
-        self.on_slider_changed_t_ax(t_ax / 2)
-        self.on_slider_changed_t_cor(t_cor)
-        self.on_slider_changed_t_sag(t_sag / 1.5)
-        self.on_slider_changed_R_ax(r_ax)
-        self.on_slider_changed_R_cor(r_cor)
-        self.on_slider_changed_R_sag(r_sag)
-
+        if r_ax == 0:
+            self.cam_motion_parameters[self.current_proj, 0:3] = cam_motion_parameters[0:3]
+            self.on_slider_changed_t_ax(t_ax / 2)
+            self.on_slider_changed_t_cor(t_cor)
+            self.on_slider_changed_t_sag(t_sag / 1.5)
         self.motion_from_vtk = False
 
     def connect_slider(self):
@@ -198,10 +202,13 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.motion_parameters[self.current_proj, 0] = i * 2  ##currently leftwards rightwards
             if self.motion_from_vtk == False:
                 self.on_slider_changed()
+                # self.slider_motion_parameters[self.current_proj, 0] = i * 2 - self.cam_motion_parameters[
+                #     self.current_proj, 0]
             else:
                 if self.TSliderAxial.value() == i:
                     return
                 self.TSliderAxial.setValue(i)
+                self.register_projection()
 
     def on_slider_changed_t_cor(self, i):
         if i is not 0:
@@ -209,10 +216,13 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.motion_parameters[self.current_proj, 1] = i  ##currently upwards
             if self.motion_from_vtk == False:
                 self.on_slider_changed()
+                # self.slider_motion_parameters[self.current_proj, 1] = i - self.cam_motion_parameters[
+                #     self.current_proj, 1]
             else:
                 if (self.TSliderCoronal.value() == i):
                     return
                 self.TSliderCoronal.setValue(i)
+                self.register_projection()
 
     def on_slider_changed_t_sag(self, i):
         if i is not 0:
@@ -220,10 +230,13 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.motion_parameters[self.current_proj, 2] = i * 1.5
             if self.motion_from_vtk == False:
                 self.on_slider_changed()
+                # self.slider_motion_parameters[self.current_proj, 2] = i * 1.5 + self.cam_motion_parameters[
+                #     self.current_proj, 2]
             else:
                 if (self.TSliderSagittal.value() == i):
                     return
                 self.TSliderSagittal.setValue(i)
+                self.register_projection()
 
     def on_slider_changed_R_ax(self, i):
         if i is not 0:
@@ -231,10 +244,13 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.motion_parameters[self.current_proj, 3] = i
             if self.motion_from_vtk == False:
                 self.on_slider_changed()
+                # self.slider_motion_parameters[self.current_proj, 3] = i - self.cam_motion_parameters[
+                #     self.current_proj, 3]
             else:
                 if (self.RSliderAxial.value() == i):
                     return
                 self.RSliderAxial.setValue(i)
+                self.register_projection()
 
     def on_slider_changed_R_cor(self, i):
         # self.previous_motion_parameters = self.motion_parameters
@@ -244,10 +260,13 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.motion_parameters[self.current_proj, 4] = i
             if self.motion_from_vtk == False:
                 self.on_slider_changed()
+                # self.slider_motion_parameters[self.current_proj, 4] = i - self.cam_motion_parameters[
+                #     self.current_proj, 4]
             else:
                 if self.RSliderCoronal.value() == i:
                     return
                 self.RSliderCoronal.setValue(i)
+                self.register_projection()
 
     def on_slider_changed_R_sag(self, i):
         if i is not 0:
@@ -255,10 +274,13 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.motion_parameters[self.current_proj, 5] = i
             if self.motion_from_vtk == False:
                 self.on_slider_changed()
+                # self.slider_motion_parameters[self.current_proj, 5] = i - self.cam_motion_parameters[
+                #     self.current_proj, 5]
             else:
                 if self.RSliderSagittal.value() == i:
                     return
                 self.RSliderSagittal.setValue(i)
+                self.register_projection()
 
     def on_slider_changed(self):
         self.register_projection()
@@ -335,7 +357,8 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.proj_mat_creator_widget.show()
 
     def motion_to_vtk_window(self):
-        self.vtk_handle.set_rotation(self.motion_parameters[self.current_proj])
+        self.vtk_handle.set_rotation(self.motion_parameters[self.current_proj] - self.cam_motion_parameters[
+            self.current_proj])  # + self.cam_reset_motion_parameters[self.current_proj])
 
     def on_bt_interpolate(self):
         if self.used_interpolation is self.cos_interp:
@@ -406,6 +429,7 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.set_sliders_via_array(self.motion_parameters[self.current_proj])
         self.motion_to_vtk_window()
         self.reset_mpr()
+        # self.cam_reset_motion_parameters[self.current_proj] = self.cam_motion_parameters[self.current_proj]
 
     def reset_mpr(self):
         self.gps_axial.setPos(-self.offset[1, 0], -self.offset[1, 1])
