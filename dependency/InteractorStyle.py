@@ -14,10 +14,7 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         else:
             self.parent = vtk.vtkRenderWindowInteractor()
 
-        # self.start_position = self.parent.GetRenderWindow().GetRenderers().GetFirstRenderer().GetActiveCamera().GetPosition()
         self.reference_position = self.parent.GetRenderWindow().GetRenderers().GetFirstRenderer().GetActiveCamera().GetPosition()
-        # self.start_view_up = self.parent.GetRenderWindow().GetRenderers().GetFirstRenderer().GetActiveCamera().GetViewUp()
-        # self.start_focal_point = self.parent.GetRenderWindow().GetRenderers().GetFirstRenderer().GetActiveCamera().GetViewUp()
 
         self.movement = False
         self.rotation = False
@@ -82,7 +79,7 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         r_ax = orientation[1]
         r_cor = orientation[2]
         self.motion_parameters = np.array([0, 0, 0, r_ax, r_cor, r_sag])
-        self.mocrin.vtk_motion_to_graphics_view(self.motion_parameters)
+        self.mocrin.vtk_motion_to_graphics_view(self.motion_parameters, True, False)
         # print("orientation: rot_sag:" + str(r_sag) + "°  rot_cor:" + str(r_cor) + "° rot_ax: " + str(r_ax) + "°")
         # print("Current position: " + str(cam.GetPosition()))
 
@@ -91,7 +88,7 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         t_sag = -(current_position[1] - self.reference_position[1])
         t_ax = -(current_position[2] - self.reference_position[2])
         self.motion_parameters = np.array([t_ax, t_cor, t_sag, 0, 0, 0])
-        self.mocrin.vtk_motion_to_graphics_view(self.motion_parameters)
+        self.mocrin.vtk_motion_to_graphics_view(self.motion_parameters, False, True)
         # print(
         #    "shifting of position: t_cor:" + str(t_cor) + "; t_sag:" + str(t_sag) + "; t_ax:" + str(t_ax) + "\n")
 
@@ -104,9 +101,11 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
         if (self.rotation == True):
             self.apply_rotation(cam)
+            #print("Orientation: (Interactor Style) " + str(cam.GetOrientation()))
         current_position = cam.GetPosition()
         if (self.movement == True):
             self.apply_shifting(current_position)
+            #print("Position(Interactor Style): " + str(cam.GetPosition()))
 
         # print()
         # for i in range(4):

@@ -162,7 +162,7 @@ class MotionCreator_logic(Ui_MotionCreator):
     def set_text_selected_timepoint_label(self):
         self.lb_Time_ScrollBar.setText("Selected Timepoint: {}/{}".format(self.current_proj + 1, self.num_proj))
 
-    def vtk_motion_to_graphics_view(self, cam_motion_parameters):
+    def vtk_motion_to_graphics_view(self, cam_motion_parameters, rotation, shifting):
         t_ax = cam_motion_parameters[0]
         t_cor = cam_motion_parameters[1]
         t_sag = cam_motion_parameters[2]
@@ -171,17 +171,17 @@ class MotionCreator_logic(Ui_MotionCreator):
         r_sag = cam_motion_parameters[5]
 
         self.motion_from_vtk = True
-        if t_ax == 0:
+        if rotation == True:
             self.cam_motion_parameters[self.current_proj, 3:6] = cam_motion_parameters[3:6]
             self.on_slider_changed_R_ax(r_ax)
             self.on_slider_changed_R_cor(r_cor)
             self.on_slider_changed_R_sag(r_sag)
 
-        if r_ax == 0:
+        if shifting == True:
             self.cam_motion_parameters[self.current_proj, 0:3] = cam_motion_parameters[0:3]
-            self.on_slider_changed_t_ax(t_ax / 2)
+            self.on_slider_changed_t_ax(t_ax)  # / 2)
             self.on_slider_changed_t_cor(t_cor)
-            self.on_slider_changed_t_sag(t_sag / 1.5)
+            self.on_slider_changed_t_sag(t_sag)  # / 1.5)
         self.motion_from_vtk = False
 
     def connect_slider(self):
@@ -357,8 +357,9 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.proj_mat_creator_widget.show()
 
     def motion_to_vtk_window(self):
-        self.vtk_handle.set_rotation(self.motion_parameters[self.current_proj] - self.cam_motion_parameters[
-            self.current_proj])  # + self.cam_reset_motion_parameters[self.current_proj])
+        self.vtk_handle.set_camera_params(self.motion_parameters[self.current_proj])
+        #print("Motion params: " + str(self.motion_parameters[self.current_proj]) + "\n")
+
 
     def on_bt_interpolate(self):
         if self.used_interpolation is self.cos_interp:
