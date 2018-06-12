@@ -7,8 +7,6 @@ from dependency.RenderWindowInteractor import *
 from include import help_functions
 
 
-##TODO synchronize shifting "translation" - rotation working
-
 ## class that needs a qtFrame and places a vtk renderwindow inside
 class vtkWindow():
     def vtkWidget(self, qtFrame, motion_creator_instance):
@@ -72,6 +70,8 @@ class vtkWindow():
 
         self.initial_camera = vtk.vtkCamera()
         self.initial_camera.DeepCopy(self.ren.GetActiveCamera())
+        self.reference_position = self.initial_camera.GetPosition()
+        self.reference_motion_params = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     def init_camera(self):
         initial_camera = vtk.vtkCamera()
@@ -79,75 +79,83 @@ class vtkWindow():
         self.ren.SetActiveCamera(initial_camera)
         self.iren.Initialize()
 
-    def set_camera_params(self, motion_params):
-        # renderers = self.interactorStyle.parent.GetRenderWindow().GetRenderers()
-        cam = self.ren.GetActiveCamera()
+    def set_camera_params(self, motion_params, rotation_bool, shifting_bool):
+        camera = self.ren.GetActiveCamera()
+        if (motion_params == [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]).all():
+            self.reference_motion_params = motion_params[:]
+            self.init_camera()
+            return
+        if (rotation_bool == True):
+            self.apply_rotation_to_cam(camera, motion_params)
+        if (shifting_bool == True):
+            self.apply_movement_to_cam(camera, motion_params)
 
-        self.apply_rotation_to_cam(cam, motion_params)
-        self.apply_shifting_to_cam(cam, motion_params)
+        # print("Focal (VTK): " + str(camera.GetFocalPoint()))
+        # print("View Up (VTK): " + str(camera.GetViewUp()))
+        # print("Motion params: " + str(motion_params))
+        # print("Position(VTK): " + str(camera.GetPosition()))
+        # print("Reference motion params: " + str(self.reference_motion_params))
+        # print("Orientation(VTK) " + str(camera.GetOrientation()) + "\n")
 
         self.ren.ResetCamera()
         self.ren.ResetCameraClippingRange()
         self.vtkWidget.Initialize()
+        self.iren.Initialize()
 
-    def apply_shifting_to_cam(self, camera, motion_params):
-        t_ax = motion_params[0]
-        t_cor = motion_params[1]
-        t_sag = motion_params[2]
+    def apply_movement_to_cam(self, camera, motion_params):
+        ref = (self.reference_motion_params[0:3])
+        current = (motion_params[0:3])
 
-        reference_position = self.interactorStyle.reference_position
-        current_cor = -(t_cor - reference_position[0])
-        current_sag = - (t_sag - reference_position[1])
-        current_ax = - (t_ax - reference_position[2])
-        camera.SetPosition(current_cor, current_sag, current_ax)
-        #print("Position(apply shifting to cam): " + str(camera.GetPosition()))
+        # compute the new position
+        current_cor = self.reference_position[0] - (current[1] - ref[1])
+        current_sag = self.reference_position[1] - (current[2] - ref[2])
+        current_ax = self.reference_position[2] - (current[0] - ref[0])
+        new_position = (current_cor, current_sag, current_ax)
+
+        # Setting camera values
+        camera.SetPosition(new_position)
+        focal = camera.GetFocalPoint()
+        camera.SetFocalPoint(new_position[0], new_position[1], focal[2])
+        camera.SetDistance(new_position[2])
+
+        # update new reference motion parameters and reference position
+        self.reference_motion_params = motion_params[:]
+        self.reference_position = new_position[:]
 
     def apply_rotation_to_cam(self, camera, motion_params):
-        orientation = ([motion_params[5], motion_params[3], motion_params[4]])
-        focus = np.zeros(3)
-        position = self.interactorStyle.reference_position
-        viewup = np.zeros(3)
+        # orientation determined of slider values
+        orientation = (motion_params[5], -motion_params[3], motion_params[4])
+        # current orientation of camera
+        cam_orientation = camera.GetOrientation()
 
-        focus[0] = position[0] - -cos(radians(orientation[0])) * sin(radians(orientation[1]))
-        focus[1] = position[1] - sin(radians(orientation[0]))
-        focus[2] = position[2] - cos(radians(orientation[0])) * cos(radians(orientation[1]))
+        camera.Elevation(orientation[0] - cam_orientation[0])
+        camera.Azimuth(orientation[1] + cam_orientation[1])
+        camera.Roll(orientation[2] - cam_orientation[2])
 
-        viewup[0] = cos(radians(orientation[1])) * sin(radians(orientation[2])) + sin(radians(orientation[1])) * sin(
-            radians(orientation[2])) * cos(radians(
-            orientation[2]))
-        viewup[1] = cos(radians(orientation[0])) * cos(radians(orientation[2]))
-        viewup[2] = sin(radians(orientation[1])) * sin(radians(orientation[2])) - cos(radians(orientation[1])) * sin(
-            radians(orientation[0])) * cos(radians(
-            orientation[2]))
+        self.reference_motion_params = motion_params[:]
 
-        camera.SetViewUp(viewup)
-        camera.SetFocalPoint(focus)
-        # print("Orientation (apply rotation): " + str(camera.GetOrientation()))
+    def set_rotation(self, rotation):
+        rotMat = help_functions.get_Rt(rotation)
+        transform = vtk.vtkTransform()
+        transform.Identity()
+        matrix = help_functions.GetVTKMatrix(rotMat)
+        transform.Concatenate(matrix)
 
+        # transformFilter = vtk.vtkTransformPolyDataFilter()
+        # transformFilter.SetTransform(transform)
+        # transformFilter.SetInputConnection(self.arrowSource.GetOutputPort())
+        # transformFilter.Update()
 
-def set_rotation(self, rotation):
-    rotMat = help_functions.get_Rt(rotation)
+        # coneMapper = vtk.vtkPolyDataMapper()
+        # coneMapper.SetInputConnection(transformFilter.GetOutputPort())
 
-    transform = vtk.vtkTransform()
-    transform.Identity()
-    matrix = help_functions.GetVTKMatrix(rotMat)
-    transform.Concatenate(matrix)
+        # actor = vtk.vtkActor()
+        # actor.SetMapper(coneMapper)
 
-    # transformFilter = vtk.vtkTransformPolyDataFilter()
-    # transformFilter.SetTransform(transform)
-    # transformFilter.SetInputConnection(self.arrowSource.GetOutputPort())
-    # transformFilter.Update()
-
-    # coneMapper = vtk.vtkPolyDataMapper()
-    # coneMapper.SetInputConnection(transformFilter.GetOutputPort())
-
-    # actor = vtk.vtkActor()
-    # actor.SetMapper(coneMapper)
-
-    self.actor.SetUserTransform(transform)
-    self.ren.ResetCameraClippingRange()
-    self.vtkWidget.Initialize()
-    self.iren.Initialize()
+        self.actor.SetUserTransform(transform)
+        self.ren.ResetCameraClippingRange()
+        self.vtkWidget.Initialize()
+        self.iren.Initialize()
     # enable user interface interactor
     # iren.Initialize()
     # renWin.Render()
