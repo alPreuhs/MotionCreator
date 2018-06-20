@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'motionCreator_gui.ui'
 #
-# Created by: PyQt5 UI code generator 5.6
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MotionCreator(object):
     def setupUi(self, MotionCreator):
         MotionCreator.setObjectName("MotionCreator")
-        MotionCreator.resize(1158, 971)
+        MotionCreator.resize(1267, 1145)
         self.centralwidget = QtWidgets.QWidget(MotionCreator)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -32,7 +32,6 @@ class Ui_MotionCreator(object):
         self.widget = QtWidgets.QWidget(self.frame)
         self.widget.setObjectName("widget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.widget)
-        self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.bt_createPM = QtWidgets.QPushButton(self.widget)
         self.bt_createPM.setObjectName("bt_createPM")
@@ -187,6 +186,20 @@ class Ui_MotionCreator(object):
         self.verticalLayout_3.addWidget(self.bt_interpolate_motion)
         spacerItem6 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_3.addItem(spacerItem6)
+        self.bt_start_automatic_timepoint_passing = QtWidgets.QPushButton(self.frame_2)
+        self.bt_start_automatic_timepoint_passing.setObjectName("bt_start_automatic_timepoint_passing")
+        self.verticalLayout_3.addWidget(self.bt_start_automatic_timepoint_passing)
+        self.lb_StepSize_ScrollBar = QtWidgets.QLabel(self.frame_2)
+        self.lb_StepSize_ScrollBar.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.lb_StepSize_ScrollBar.setAlignment(QtCore.Qt.AlignCenter)
+        self.lb_StepSize_ScrollBar.setObjectName("lb_StepSize_ScrollBar")
+        self.verticalLayout_3.addWidget(self.lb_StepSize_ScrollBar)
+        self.sb_stepsize = QtWidgets.QScrollBar(self.frame_2)
+        self.sb_stepsize.setOrientation(QtCore.Qt.Horizontal)
+        self.sb_stepsize.setObjectName("sb_stepsize")
+        self.verticalLayout_3.addWidget(self.sb_stepsize)
+        spacerItem7 = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem7)
         self.bt_load_pm = QtWidgets.QPushButton(self.frame_2)
         self.bt_load_pm.setObjectName("bt_load_pm")
         self.verticalLayout_3.addWidget(self.bt_load_pm)
@@ -200,8 +213,6 @@ class Ui_MotionCreator(object):
         self.bt_save_pm = QtWidgets.QPushButton(self.frame_2)
         self.bt_save_pm.setObjectName("bt_save_pm")
         self.verticalLayout_3.addWidget(self.bt_save_pm)
-        spacerItem7 = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_3.addItem(spacerItem7)
         spacerItem8 = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_3.addItem(spacerItem8)
         self.lb_proj_is_used = QtWidgets.QLabel(self.frame_2)
@@ -220,7 +231,7 @@ class Ui_MotionCreator(object):
         self.horizontalLayout_5.addWidget(self.frame_2)
         MotionCreator.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MotionCreator)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1158, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1267, 38))
         self.menubar.setObjectName("menubar")
         MotionCreator.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MotionCreator)
@@ -240,11 +251,15 @@ class Ui_MotionCreator(object):
         self.cb_akima.setText(_translate("MotionCreator", "Akima interploation"))
         self.cb_cosinus.setText(_translate("MotionCreator", "Cosine interpolation"))
         self.bt_interpolate_motion.setText(_translate("MotionCreator", "Interpolate Motion"))
+        self.bt_start_automatic_timepoint_passing.setText(_translate("MotionCreator", "Start Automatic\n"
+" Timepoint Passing"))
+        self.lb_StepSize_ScrollBar.setText(_translate("MotionCreator", "Step Size: 100 ms"))
         self.bt_load_pm.setText(_translate("MotionCreator", "Load Projection Matrices"))
         self.bt_load_motion_file.setText(_translate("MotionCreator", "Load Motion File"))
         self.bt_save.setText(_translate("MotionCreator", "Save Motion Model"))
         self.bt_save_pm.setText(_translate("MotionCreator", "Save Projection Matrices"))
-        self.lb_proj_is_used.setText(_translate("MotionCreator", "Motion NOT Defined for this Projection"))
+        self.lb_proj_is_used.setText(_translate("MotionCreator", "Motion NOT Defined for \n"
+"this Projection"))
         self.bt_reset_cur_proj.setText(_translate("MotionCreator", "Reset Current Projection"))
         self.bt_reset_all_proj.setText(_translate("MotionCreator", "Reset all Projections"))
 

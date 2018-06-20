@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1158</width>
-    <height>971</height>
+    <width>1267</width>
+    <height>1145</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -458,6 +458,47 @@
         </spacer>
        </item>
        <item>
+        <widget class="QPushButton" name="bt_start_automatic_timepoint_passing">
+         <property name="text">
+          <string>Start Automatic
+ Timepoint Passing</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lb_StepSize_ScrollBar">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>Step Size: 100 ms</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QScrollBar" name="sb_stepsize">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QPushButton" name="bt_load_pm">
          <property name="text">
           <string>Load Projection Matrices</string>
@@ -489,19 +530,6 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -520,7 +548,8 @@
           <bool>true</bool>
          </property>
          <property name="text">
-          <string>Motion NOT Defined for this Projection</string>
+          <string>Motion NOT Defined for 
+this Projection</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -557,8 +586,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1158</width>
-     <height>26</height>
+     <width>1267</width>
+     <height>38</height>
     </rect>
    </property>
   </widget>

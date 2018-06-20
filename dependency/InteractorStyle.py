@@ -1,5 +1,6 @@
 import vtk
 import numpy as np
+from PyQt5.QtCore import QTimer
 
 
 ##Class that can be used as InteractionStyle, where events can be catched
@@ -28,7 +29,13 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         self.AddObserver("MiddleButtonReleaseEvent", self.MiddleButtonReleaseEvent)
         self.AddObserver("RightButtonReleaseEvent", self.RigthButtonReleaseEvent)
 
+        self.AddObserver("LeftButtonPressEvent", self.LeftButtonPressEvent)
+        self.AddObserver("MiddleButtonPressEvent", self.MiddleButtonPressEvent)
+
         self.GetCameraParameters
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.GetCameraParameters)
+        self.timer_step_in_ms = 1
         #
         # self.AddObserver("WheelEvent", self.mouseEvent)
         # self.AddObserver("wheelEvent", self.mouseEvent)
@@ -52,19 +59,27 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     #
     def MiddleButtonReleaseEvent(self, event, m):
         # print("Middle Button was Pressed")
-        self.movement = True
-        self.OnMiddleButtonUp()
-        self.GetCameraParameters()
         self.movement = False
+        self.OnMiddleButtonUp()
+        self.timer.stop()
         return
+
+    def MiddleButtonPressEvent(self, event, m):
+        self.movement = True
+        self.timer.start(self.timer_step_in_ms)
+        self.OnMiddleButtonDown()
 
     def LeftButtonReleaseEvent(self, event, m):
         # print("Left Button was Pressed")
-        self.rotation = True
-        self.OnLeftButtonUp()
-        self.GetCameraParameters()
         self.rotation = False
+        self.OnLeftButtonUp()
+        self.timer.stop()
         return
+
+    def LeftButtonPressEvent(self, event, m):
+        self.rotation = True
+        self.OnLeftButtonDown()
+        self.timer.start(self.timer_step_in_ms)
 
     def apply_rotation(self, cam):
         orientation = cam.GetOrientation()

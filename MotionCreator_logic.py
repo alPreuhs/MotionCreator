@@ -5,6 +5,7 @@ import xml.etree.ElementTree as etree
 import PyQt5
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
+# from PyQt5.QtCore import QTimer
 import os
 from ProjectionMatrix.ProjMatCreator_logic import ProjMatCreator_logic
 from include import akima
@@ -148,7 +149,9 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.used_interpolation = self.cos_interp
         self.num_proj = int(self.proj_mat_creator.tf_num_proj.text()) + 1
         self.current_proj = 0
-        self.set_text_selected_timepoint_label()
+        self.set_text_selected_timepoint_label
+        self.stepsize_automatic_time_passing = (self.sb_stepsize.value() + 1) * 10
+        self.set_text_step_size_label()
         self.used_projections = []
         self.lb_proj_is_used.setAutoFillBackground(True)  # To enable background colouring
         self.set_motion_label_and_btn()
@@ -160,9 +163,14 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.motion_from_vtk = False
         self.rotation_bool = False
         self.shifting_bool = False
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.__onTimer)
 
     def set_text_selected_timepoint_label(self):
         self.lb_Time_ScrollBar.setText("Selected Timepoint: {}/{}".format(self.current_proj + 1, self.num_proj))
+
+    def set_text_step_size_label(self):
+        self.lb_StepSize_ScrollBar.setText("Selected Step Size: {} ms".format(self.stepsize_automatic_time_passing))
 
     def vtk_motion_to_graphics_view(self, cam_motion_parameters, rotation, shifting):
         t_ax = cam_motion_parameters[0]
@@ -197,6 +205,8 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.RSliderSagittal.valueChanged.connect(self.on_slider_changed_R_sag)
         ##Connect Time Slider
         self.sb_time_cursor.valueChanged.connect(self.on_time_cursor_changed)
+        ##Connect Step Size Timer
+        self.sb_stepsize.valueChanged.connect(self.on_stepsize_changed)
 
     def on_slider_changed_t_ax(self, i):
         # if i is not 0:
@@ -302,13 +312,21 @@ class MotionCreator_logic(Ui_MotionCreator):
 
     def on_time_cursor_changed(self, i):
         self.current_proj = i
+        if (self.timer.isActive() == True):
+            # if (self.current_proj != 0):
+            self.motion_parameters[self.current_proj] = self.motion_parameters[self.current_proj - 1][:]
         self.set_text_selected_timepoint_label()
         self.set_motion_label_and_btn()
         self.set_sliders_via_array(self.motion_parameters[self.current_proj])
         self.rotation_bool = True
-        self.motion_to_vtk_window()
+        if (self.timer.isActive() == False):
+            self.motion_to_vtk_window()
         self.rotation_bool = False
         self.set_mprs()
+
+    def on_stepsize_changed(self, i):
+        self.stepsize_automatic_time_passing = (i + 1) * 10
+        self.set_text_step_size_label()
 
     def unregister_projection_n(self, num):
         # check if projection was registered
@@ -368,6 +386,7 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.bt_save_pm.clicked.connect(self.on_bt_save_pm)
         self.bt_createPM.clicked.connect(self.on_bt_create_pm)
         self.bt_load_motion_file.clicked.connect(self.on_load_motion_file)
+        self.bt_start_automatic_timepoint_passing.clicked.connect(self.automated_time_cursor_passing)
 
     def on_bt_create_pm(self):
         self.proj_mat_creator_widget.show()
@@ -529,12 +548,23 @@ class MotionCreator_logic(Ui_MotionCreator):
     def on_bt_next_proj(self):
         ##this is the highest entry, since all entries are sorted
         prev_proj = self.used_projections[-1]
-        ##the first value that is greater than the current value is the next balue
+        ##the first value that is greater than the current value is the next value
         for entry in self.used_projections:
             if entry > self.current_proj:
                 self.select_projection(entry)
                 return
         self.select_projection(prev_proj)
+
+    def __onTimer(self):
+        if (self.current_proj + 1) < self.num_proj:
+            self.current_proj += 1
+            self.select_projection(self.current_proj)
+        else:
+            self.timer.stop()
+
+    def automated_time_cursor_passing(self):
+        # self.current_proj = 0
+        self.timer.start(self.stepsize_automatic_time_passing)
 
     def select_projection(self, num):
         self.sb_time_cursor.setValue(num)
