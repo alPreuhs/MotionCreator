@@ -172,6 +172,14 @@ class MotionCreator_logic(Ui_MotionCreator):
     def set_text_step_size_label(self):
         self.lb_StepSize_ScrollBar.setText("Selected Step Size: {} ms".format(self.stepsize_automatic_time_passing))
 
+    def set_text_bt_start(self, i):
+        if (i == 0):
+            self.bt_start_automatic_timepoint_passing.setText("Start Automatic\n"
+                                                              " Timepoint Passing")  #
+        else:
+            self.bt_start_automatic_timepoint_passing.setText("Stop Automatic\n"
+                                                              " Timepoint Passing")
+
     def vtk_motion_to_graphics_view(self, cam_motion_parameters, rotation, shifting):
         t_ax = cam_motion_parameters[0]
         t_cor = cam_motion_parameters[1]
@@ -209,15 +217,12 @@ class MotionCreator_logic(Ui_MotionCreator):
         self.sb_stepsize.valueChanged.connect(self.on_stepsize_changed)
 
     def on_slider_changed_t_ax(self, i):
-        # if i is not 0:
         self.gps_axial.setPos(-  self.offset[1, 0], -self.offset[1, 1] + i)
         self.motion_parameters[self.current_proj, 0] = i * 2  ##currently leftwards rightwards
         if self.motion_from_vtk == False:
             self.shifting_bool = True
             self.on_slider_changed()
             self.shifting_bool = False
-            # self.slider_motion_parameters[self.current_proj, 0] = i * 2 - self.cam_motion_parameters[
-            #     self.current_proj, 0]
         else:
             if self.TSliderAxial.value() == i:
                 return
@@ -232,8 +237,6 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.shifting_bool = True
             self.on_slider_changed()
             self.shifting_bool = False
-            # self.slider_motion_parameters[self.current_proj, 1] = i - self.cam_motion_parameters[
-            #     self.current_proj, 1]
         else:
             if (self.TSliderCoronal.value() == i):
                 return
@@ -241,15 +244,12 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.register_projection()
 
     def on_slider_changed_t_sag(self, i):
-        # if i is not 0:
         self.gps_sagittal.setPos(-  self.offset[2, 0], -self.offset[2, 1] - i)
         self.motion_parameters[self.current_proj, 2] = i * 1.5
         if self.motion_from_vtk == False:
             self.shifting_bool = True
             self.on_slider_changed()
             self.shifting_bool = False
-            # self.slider_motion_parameters[self.current_proj, 2] = i * 1.5 + self.cam_motion_parameters[
-            #     self.current_proj, 2]
         else:
             if (self.TSliderSagittal.value() == i):
                 return
@@ -257,15 +257,12 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.register_projection()
 
     def on_slider_changed_R_ax(self, i):
-        # if i is not 0:
         self.gps_axial.setRotation(-i)
         self.motion_parameters[self.current_proj, 3] = i
         if self.motion_from_vtk == False:
             self.rotation_bool = True
             self.on_slider_changed()
             self.rotation_bool = False
-            # self.slider_motion_parameters[self.current_proj, 3] = i - self.cam_motion_parameters[
-            #     self.current_proj, 3]
         else:
             if (self.RSliderAxial.value() == i):
                 return
@@ -273,17 +270,12 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.register_projection()
 
     def on_slider_changed_R_cor(self, i):
-        # self.previous_motion_parameters = self.motion_parameters
-        # print(self.previous_motion_parameters[self.current_proj])
-        # if i is not 0:
         self.gps_coronal.setRotation(-i)
         self.motion_parameters[self.current_proj, 4] = i
         if self.motion_from_vtk == False:
             self.rotation_bool = True
             self.on_slider_changed()
             self.rotation_bool = False
-            # self.slider_motion_parameters[self.current_proj, 4] = i - self.cam_motion_parameters[
-            #     self.current_proj, 4]
         else:
             if self.RSliderCoronal.value() == i:
                 return
@@ -291,15 +283,12 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.register_projection()
 
     def on_slider_changed_R_sag(self, i):
-        # if i is not 0:
         self.gps_sagittal.setRotation(-i)
         self.motion_parameters[self.current_proj, 5] = i
         if self.motion_from_vtk == False:
             self.rotation_bool = True
             self.on_slider_changed()
             self.rotation_bool = False
-            # self.slider_motion_parameters[self.current_proj, 5] = i - self.cam_motion_parameters[
-            #     self.current_proj, 5]
         else:
             if self.RSliderSagittal.value() == i:
                 return
@@ -313,20 +302,21 @@ class MotionCreator_logic(Ui_MotionCreator):
     def on_time_cursor_changed(self, i):
         self.current_proj = i
         if (self.timer.isActive() == True):
-            # if (self.current_proj != 0):
-            self.motion_parameters[self.current_proj] = self.motion_parameters[self.current_proj - 1][:]
+            self.motion_parameters[self.current_proj][:] = self.motion_parameters[self.current_proj - 1][:]
         self.set_text_selected_timepoint_label()
         self.set_motion_label_and_btn()
         self.set_sliders_via_array(self.motion_parameters[self.current_proj])
         self.rotation_bool = True
-        if (self.timer.isActive() == False):
-            self.motion_to_vtk_window()
+        # if (self.timer.isActive() == False):
+        self.motion_to_vtk_window()
         self.rotation_bool = False
         self.set_mprs()
 
     def on_stepsize_changed(self, i):
         self.stepsize_automatic_time_passing = (i + 1) * 10
         self.set_text_step_size_label()
+        if (self.timer.isActive() == True):
+            self.timer.setInterval((i + 1) * 10)
 
     def unregister_projection_n(self, num):
         # check if projection was registered
@@ -394,9 +384,6 @@ class MotionCreator_logic(Ui_MotionCreator):
     def motion_to_vtk_window(self):
         self.vtk_handle.set_camera_params(self.motion_parameters[self.current_proj], self.rotation_bool,
                                           self.shifting_bool)
-        # self.vtk_handle.set_rotation(self.motion_parameters[self.current_proj])
-
-        # print("Motion params: " + str(self.motion_parameters[self.current_proj]) + "\n")
 
     def on_bt_interpolate(self):
         if self.used_interpolation is self.cos_interp:
@@ -560,11 +547,24 @@ class MotionCreator_logic(Ui_MotionCreator):
             self.current_proj += 1
             self.select_projection(self.current_proj)
         else:
+            if (self.cb_automatic_interpolation.isChecked):
+                self.bt_interpolate_motion.click()
+            self.set_text_bt_start(0)
             self.timer.stop()
 
     def automated_time_cursor_passing(self):
-        # self.current_proj = 0
-        self.timer.start(self.stepsize_automatic_time_passing)
+        if (self.timer.isActive() == True):
+            self.set_text_bt_start(0)
+            self.timer.stop()
+            self.register_projection()
+            if (self.cb_automatic_interpolation.isChecked):
+                self.bt_interpolate_motion.click()
+        else:
+            self.set_text_bt_start(1)
+            self.current_proj = 0
+            self.bt_next_proj.setDisabled(True)
+            self.bt_prev_proj.setDisabled(True)
+            self.timer.start(self.stepsize_automatic_time_passing)
 
     def select_projection(self, num):
         self.sb_time_cursor.setValue(num)

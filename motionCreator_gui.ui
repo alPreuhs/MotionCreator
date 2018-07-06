@@ -466,6 +466,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="cb_automatic_interpolation">
+         <property name="text">
+          <string>Interpolation</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="lb_StepSize_ScrollBar">
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
@@ -480,6 +487,14 @@
        </item>
        <item>
         <widget class="QScrollBar" name="sb_stepsize">
+         <property name="font">
+          <font>
+           <stylestrategy>PreferDefault</stylestrategy>
+          </font>
+         </property>
+         <property name="value">
+          <number>9</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>

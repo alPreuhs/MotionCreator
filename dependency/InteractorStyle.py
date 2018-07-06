@@ -35,7 +35,7 @@ class InteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         self.GetCameraParameters
         self.timer = QTimer()
         self.timer.timeout.connect(self.GetCameraParameters)
-        self.timer_step_in_ms = 1
+        self.timer_step_in_ms = 0.0001
         #
         # self.AddObserver("WheelEvent", self.mouseEvent)
         # self.AddObserver("wheelEvent", self.mouseEvent)

@@ -128,10 +128,15 @@ class vtkWindow():
         # current orientation of camera
         cam_orientation = camera.GetOrientation()
 
+        for i in range(0, 3):
+            if (abs(abs(cam_orientation[i]) - abs(orientation[i])) > 0.01):
+                camera.SetViewUp(0, 1, 0)
+                cam_orientation = camera.GetOrientation()
+                break
+
         camera.Elevation(orientation[0] - cam_orientation[0])
         camera.Azimuth(orientation[1] + cam_orientation[1])
         camera.Roll(orientation[2] - cam_orientation[2])
-
         self.reference_motion_params = motion_params[:]
 
     def set_rotation(self, rotation):
